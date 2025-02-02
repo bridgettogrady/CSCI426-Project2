@@ -13,6 +13,8 @@ public class Movement : MonoBehaviour
     private List<KeyCode> WASD = new List<KeyCode>{KeyCode.W, KeyCode.A, KeyCode.S, KeyCode.D};
     private List<KeyCode> arrows = new List<KeyCode>{KeyCode.UpArrow, KeyCode.LeftArrow, KeyCode.DownArrow, KeyCode.RightArrow};
     private List<KeyCode> activeKeys;
+    private Vector2 scaleChange;
+    private float distanceAway;
 
     //FIXME
     private int i = 0;
@@ -26,11 +28,13 @@ public class Movement : MonoBehaviour
         }
 
         transform.position = startingPos;
+        //Transform indicatorSize = GetComponentInChildren<Transform>(transform.localScale);
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(distanceAway);
         Vector3 move = Vector3.zero;
 
         // get input based on left or right player
@@ -53,6 +57,8 @@ public class Movement : MonoBehaviour
         // update close to loot or not
         List<Vector2> loot = spawnLoot.GetLootPos();
         foreach (Vector2 pos in loot) {
+            distanceAway = Vector2.Distance(transform.position, pos);
+            transform.localScale = new Vector3(1.9f-(1.9f*(distanceAway/18)), 1.9f - (1.9f *(distanceAway / 18)), 1f);
             if (Vector2.Distance(transform.position, pos) < epsilon) {
                 StartCoroutine(Wait(pos));
             }
@@ -60,6 +66,8 @@ public class Movement : MonoBehaviour
     }
 
     private IEnumerator Wait(Vector2 lootPos) {
+
+        
         if (Vector2.Distance(transform.position, lootPos) >= epsilon) {
             yield break;
         }

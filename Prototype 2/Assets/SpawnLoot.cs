@@ -24,6 +24,11 @@ public class SpawnLoot : MonoBehaviour
 
     void Update() {
         // spawn every time either player finds an object
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            Respawn();
+        }
     }
 
     private void Spawn() {
