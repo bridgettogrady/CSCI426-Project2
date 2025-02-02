@@ -10,6 +10,7 @@ public class Movement : MonoBehaviour
     public SpawnLoot spawnLoot;
     public float epsilon = 0.2f;
     public float waitingTime = 2f;
+    public float minRadius = 0.5f;
     private List<KeyCode> WASD = new List<KeyCode>{KeyCode.W, KeyCode.A, KeyCode.S, KeyCode.D};
     private List<KeyCode> arrows = new List<KeyCode>{KeyCode.UpArrow, KeyCode.LeftArrow, KeyCode.DownArrow, KeyCode.RightArrow};
     private List<KeyCode> activeKeys;
@@ -34,7 +35,6 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(distanceAway);
         Vector3 move = Vector3.zero;
 
         // get input based on left or right player
@@ -57,8 +57,12 @@ public class Movement : MonoBehaviour
         // update close to loot or not
         List<Vector2> loot = spawnLoot.GetLootPos();
         foreach (Vector2 pos in loot) {
+            
             distanceAway = Vector2.Distance(transform.position, pos);
-            transform.localScale = new Vector3(1.9f-(1.9f*(distanceAway/18)), 1.9f - (1.9f *(distanceAway / 18)), 1f);
+            float newRadius = 1.9f - (1.9f *(distanceAway / 18));
+            float clampedRadius = Mathf.Clamp(newRadius, minRadius, newRadius);
+            transform.localScale = new Vector3(clampedRadius, clampedRadius, 1.0f);
+
             if (Vector2.Distance(transform.position, pos) < epsilon) {
                 StartCoroutine(Wait(pos));
             }
