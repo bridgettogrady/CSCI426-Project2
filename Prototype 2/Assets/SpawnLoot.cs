@@ -10,6 +10,9 @@ public class SpawnLoot : MonoBehaviour
     public Vector2 spawnAreaMin = new Vector2(-50f, -50f);
     public Vector2 spawnAreaMax = new Vector2(50f, 50f);
     private bool noRespawn = false;
+    public Movement Player1;
+    public Movement Player2;
+
 
     private List<Vector2> spawnedPositions = new List<Vector2>();
     private List<GameObject> allLoot = new List<GameObject>();
@@ -59,7 +62,7 @@ public class SpawnLoot : MonoBehaviour
     }
 
     public void Respawn() {
-        if (!noRespawn) {
+        if (!noRespawn && Player1.score < 3 && Player2.score < 3) {
             // start coroutine
             StartCoroutine(NoRespawn());
 
@@ -74,8 +77,13 @@ public class SpawnLoot : MonoBehaviour
 
             // respawn
             for (int i = 0; i < spawnCount; i++) {
+
+                Player1.ScoreUpdate();
+                Player2.ScoreUpdate();
+
                 Spawn();
             }
+            
         }
     }
 

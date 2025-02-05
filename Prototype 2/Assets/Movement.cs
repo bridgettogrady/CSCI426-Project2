@@ -1,5 +1,7 @@
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class Movement : MonoBehaviour
@@ -8,24 +10,35 @@ public class Movement : MonoBehaviour
     public bool leftPlayer = true;
     public Vector2 startingPos;
     public SpawnLoot spawnLoot;
+    public Movement OtherPlayer;
     public float epsilon = 0.2f;
-    public float waitingTime = 2f;
+    public float waitingTime = 1f;
     public float minRadius = 0.5f;
     private List<KeyCode> WASD = new List<KeyCode>{KeyCode.W, KeyCode.A, KeyCode.S, KeyCode.D};
     private List<KeyCode> arrows = new List<KeyCode>{KeyCode.UpArrow, KeyCode.LeftArrow, KeyCode.DownArrow, KeyCode.RightArrow};
     private List<KeyCode> activeKeys;
     private Vector2 scaleChange;
     private float distanceAway;
+    public Text winText;
+    public Text scoreText;
+    public int score = 0;
+    private bool justScored = false;
+    public bool won = false;
 
     //FIXME
     private int i = 0;
 
     void Start() {
+
+        winText.text = "";
+
         if (leftPlayer) {
             activeKeys = WASD;
+            scoreText.text = "P1 " + score + "/3";
         }
         else {
             activeKeys = arrows;
+            scoreText.text = "P2 " + score + "/3";
         }
 
         transform.position = startingPos;
@@ -35,21 +48,59 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            Scene scene = SceneManager.GetActiveScene(); 
+            SceneManager.LoadScene(0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
+        if (score >= 3)
+        {
+            if (leftPlayer)
+            {
+                won = true;
+                winText.text = "P1 Wins!";
+            }
+            else
+            {
+                won = true;
+                winText.text = "P2 Wins!";
+            }
+        }
+
+        
+        
+        justScored = false;
+        
         Vector3 move = Vector3.zero;
 
         // get input based on left or right player
-        if (Input.GetKey(activeKeys[0])) {
-            move += Vector3.up;
+
+        if (score < 3 || OtherPlayer.won == false)
+        {
+            if (Input.GetKey(activeKeys[0]))
+            {
+                move += Vector3.up;
+            }
+            if (Input.GetKey(activeKeys[1]))
+            {
+                move += Vector3.left;
+            }
+            if (Input.GetKey(activeKeys[2]))
+            {
+                move += Vector3.down;
+            }
+            if (Input.GetKey(activeKeys[3]))
+            {
+                move += Vector3.right;
+            }
         }
-        if (Input.GetKey(activeKeys[1])) {
-            move += Vector3.left;
-        }
-        if (Input.GetKey(activeKeys[2])) {
-            move += Vector3.down;
-        }
-        if (Input.GetKey(activeKeys[3])) {
-            move += Vector3.right;
-        }
+            
         
         move = move.normalized * speed * Time.deltaTime;
         transform.position += move;
@@ -64,26 +115,53 @@ public class Movement : MonoBehaviour
             transform.localScale = new Vector3(clampedRadius, clampedRadius, 1.0f);
 
             if (Vector2.Distance(transform.position, pos) < epsilon) {
+                justScored = true;
                 StartCoroutine(Wait(pos));
             }
+            
         }
     }
 
     private IEnumerator Wait(Vector2 lootPos) {
 
-        
         if (Vector2.Distance(transform.position, lootPos) >= epsilon) {
             yield break;
         }
 
         yield return new WaitForSeconds(waitingTime);
 
-        spawnLoot.Respawn();
-        Respawn();
+        if (score < 3)
+        {
+            spawnLoot.Respawn();
+            Respawn();
+        }
     }
 
     private void Respawn() {
+
         transform.position = startingPos;
     }
+
+    public void ScoreUpdate()
+    {
+        if (justScored == true)
+            if (leftPlayer)
+            {
+                score = score + 1;
+                scoreText.text = "P1 " + score + "/3";
+                justScored = false;
+            }
+            else
+            {
+                score = score + 1;
+                scoreText.text = "P2 " + score + "/3";
+                justScored = false;
+            }
+        else
+        {
+            justScored = false;
+        }
+    }
+
 }
 
