@@ -24,11 +24,15 @@ public class Movement : MonoBehaviour
     public int score = 0;
     private bool justScored = false;
     public bool won = false;
+    public float flashDuration = 0.1f;
+    AudioSource audio;
 
     //FIXME
     private int i = 0;
 
     void Start() {
+
+        audio = GetComponent<AudioSource>();
 
         winText.text = "";
 
@@ -128,6 +132,9 @@ public class Movement : MonoBehaviour
             yield break;
         }
 
+        if (score < 3) {
+            audio.Play();
+        }
         yield return new WaitForSeconds(waitingTime);
 
         if (score < 3)
@@ -137,14 +144,21 @@ public class Movement : MonoBehaviour
         }
     }
 
-    private void Respawn() {
+    private void RespawnPosition() {
 
         transform.position = startingPos;
     }
 
+    public static void Respawn() {
+        Movement[] allMovement = FindObjectsOfType<Movement>();
+        foreach(Movement m in allMovement) {
+            m.RespawnPosition();
+        }
+    }
+
     public void ScoreUpdate()
     {
-        if (justScored == true)
+        if (justScored == true) {
             if (leftPlayer)
             {
                 score = score + 1;
@@ -157,6 +171,7 @@ public class Movement : MonoBehaviour
                 scoreText.text = "P2 " + score + "/3";
                 justScored = false;
             }
+        }
         else
         {
             justScored = false;
